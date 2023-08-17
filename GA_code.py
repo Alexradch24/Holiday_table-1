@@ -72,9 +72,9 @@ def distr_holid(i, grafic):
     #выбираем начало длиного отпуска
     ind = random.randint(0,len(kalendar) - 10)
     b = lib.create_H(kalendar[ind], kalendar[ind + 9], i)
-    string = dict_wish_date.get(lib.get_person(b), ["",0])
+    string = dict_wish_date.get(lib.get_person(b), ["", [0, 0, 0]])
     a = ctypes.create_string_buffer(str.encode(string[0]))
-    v = lib.hol_eval(b, string[1], a)
+    v = lib.hol_eval(b, string[1][0], a)
     lib.set_v(b, v)
     if flag:
         grafic = lib.create_S(b)
@@ -95,7 +95,7 @@ def distr_holid(i, grafic):
     b = lib.create_H(kalendar[ind1], kalendar[ind1 + 4], i)
     string = dict_wish_date.get(lib.get_person(b), ["",0])
     a = ctypes.create_string_buffer(str.encode(string[0]))
-    v = lib.hol_eval(b, string[1], a)
+    v = lib.hol_eval(b, string[1][1], a)
     lib.set_v(b, v)
     lib.set_hol(grafic, b)
     buf = ind - ind1
@@ -174,7 +174,7 @@ def distr_holid(i, grafic):
     b = lib.create_H(kalendar[ind2], kalendar[ind2 + 4], i)
     string = dict_wish_date.get(lib.get_person(b), ["",0])
     a = ctypes.create_string_buffer(str.encode(string[0]))
-    v = lib.hol_eval(b, string[1], a)
+    v = lib.hol_eval(b, string[1][2], a)
     lib.set_v(b, v)
     lib.set_hol(grafic, b)
     return grafic
@@ -290,9 +290,9 @@ def input_date(inp):
             s_imp_date += str(buff)
     return s_imp_date
 
-k1 = 5
-k2 = 3
-k3 = 3
+k1 = int(input("Коэфициент учёта при равномерном распределение: "))
+k2 = int(input("Коэфициент учёта непопадания в важные промежутки дат: "))
+k3 = int(input("Коэфициент учёта пожеланий сотрудников: "))
 
 kalendar = [i for i in range(1,366)]
 work_days = [[] for i in range(12)]
@@ -311,7 +311,9 @@ person_ind = {}
 dict_wish_date = {}
 for i in range(len(inp)):
     inp_1, inp_2 = inp[i].split("-")
-    inp_2 = float(inp_2)
+    inp_2 = inp_2.strip()
+    inp_2 = list(map(float, inp_2.split()))
+    if len(inp_2) < 3: inp_2 += [0] * (3 - len(inp_2))
     if not(inp_1[-1].isalpha()): inp_1 = inp_1[:-1]
     person_ind[inp_1] = i
     dict_wish_date[i] = ["", inp_2]
@@ -404,7 +406,9 @@ for j in range(count_population):
 k = 0
 prev_cost = 0
 t = time.time()
-while True:
+stop_alg = int(input("Через сколько времени(в мин) остановить алгоритм: "))
+times = "00:00"
+while int(times[:2])*60 + int(times[3:5]) < stop_alg:
 
     childrens = []
     reproduction()
@@ -456,6 +460,25 @@ while True:
         if y_n == "n": break
         print(end = "\n\n\n")
     k += 1
+    times = time.gmtime(time.time() - t)
+    times = time.strftime("%H:%M:%S" , times)
+##comit
+print("destr = ", lib.get_gr_destr(population[0]))
+print("minim = ", lib.get_gr_min(population[0]))
+print("cost = ", lib.get_gr_cost(population[0]), "from", k1+k2+k3)
+i = population[0]
+for j_ in range(lib.length(i)):
+    j = lib.get_h(i, j_)
+    ind_per = lib.get_person(j)
+    for e1, e2 in person_ind.items():
+        if e2 == ind_per:
+            print(e1, end = ': ')
+    print(rev_date_trans(lib.get_start_date(j)), end = ' - ')
+    print(rev_date_trans(lib.get_end_date(j)), end = ' {')
+    print('удовлетворение отпуском -', lib.get_v(j), end = '}\n')
+    times = time.gmtime(time.time() - t)
+    times = time.strftime("%H:%M:%S" , times)
+    print("population №", k, '    ', times)
 '''
 k=0
 for i in population:

@@ -5,6 +5,7 @@
 #ifndef SCHEDULE_H_
 #define SCHEDULE_H_
 
+
 class Schedule {
     std::vector<Holiday> gr;
     double d;   //"хорошесть" графика отпусков относительно распределния
@@ -28,6 +29,5 @@ class Schedule {
     double calc_min(std::vector<std::pair<int, int>> imp_dates, int emp);
     double calc_cost();
 };
-
 
 #endif //SCHEDULE_H_
