@@ -6,6 +6,18 @@ import time
 
 year = 2023
 
+def fix_personal_holidays(fixing_person):##фиксация отпусков людей
+    for e1, e2 in person_ind.items():
+            print(e1, ":", e2+1)
+    name_personal = input("Фамилия Имя человека или введи 0: ")
+    while name_personal != "0" and name_personal != "":
+        fixing_person.append(person_ind[name_personal])
+        for e1, e2 in person_ind.items():
+            if not (e2 in fixing_person): 
+                print(e1, ":", e2+1)
+        name_personal = input("Фамилия Имя человека или введи 0: ")
+    return fixing_person
+
 def date_trans(date_string):
     global year
     if date_string[:4].count(".") == 0:
@@ -290,9 +302,7 @@ def input_date(inp):
             s_imp_date += str(buff)
     return s_imp_date
 
-k1 = int(input("Коэфициент учёта при равномерном распределение: "))
-k2 = int(input("Коэфициент учёта непопадания в важные промежутки дат: "))
-k3 = int(input("Коэфициент учёта пожеланий сотрудников: "))
+
 
 kalendar = [i for i in range(1,366)]
 work_days = [[] for i in range(12)]
@@ -354,6 +364,17 @@ for i in work_days:
     str_calendar += "0 "
 str_calendar = str_calendar[:-3]
 
+##--Запрос о фиксации
+fix_flag = input("Зафиксировать отпуск сотрудника? y/n ")
+if fix_flag == "y":
+    fixing_person = []
+    fixing_person = fix_personal_holidays(fixing_person)
+
+##--Коэфициенты учёта
+k1 = int(input("Коэфициент учёта при равномерном распределение: "))
+k2 = int(input("Коэфициент учёта непопадания в важные промежутки дат: "))
+k3 = int(input("Коэфициент учёта пожеланий сотрудников: "))
+
 lib = ctypes.CDLL('./lib.so')
 lib.create_H.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int]
 lib.create_H.restype = ctypes.c_void_p
@@ -392,6 +413,7 @@ lib.delit.argtypes = [ctypes.c_void_p, ctypes.c_int]
 lib.clean.argtypes = [ctypes.c_void_p]
 
 count_personal_holidays = [20] * count_personal
+
 day_start_end_personal_holidays = []
 population = []
 wishes = []
